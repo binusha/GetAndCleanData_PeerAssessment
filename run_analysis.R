@@ -52,27 +52,29 @@ activity_labels <- read.table(paste(path_unzipped, "/activity_labels.txt", sep="
 names(x_train) <- variable_names
 names(x_test) <- variable_names
 
-## Merge Test and Train
+# merges the training and the test sets to create one data set.
 x_matrix <- rbind(x_test,x_train) 
 y_vector <- rbind(y_test,y_train) 
 
-
-# which variables correspond to means 
+# extracts only the measurements on the mean and standard deviation for each measurement. 
 which_means <- grep("[m]ean", variable_names)
 
 # correspondingly update ReducedDataset
 reduced_dataset <- x_matrix[,which_means]
 
-# write it:
+# write it as csv file
 write.csv(reduced_dataset,file=paste(data_dir, "/ReducedDataset.csv", sep=""))
 
+# appropriately labels the data set with descriptive activity names. 
 y_vector_labels=vector(mode="character", length=length(y_vector))
+
 
 # for each of the 6 different activity label, actually put in a factor variable with the 
 # name of the activity
-for(a in 1:6){
-  inds <- which(y_vector==a)
-  y_vector_labels[inds] <- as.character(activity_labels[a,2])
+no_activities <- 6
+for(activities in 1:no_activities){
+  inds <- which(y_vector == activities)
+  y_vector_labels[inds] <- as.character(activity_labels[activities,2])
 }
 
 # loading subject IDs
@@ -91,7 +93,7 @@ subject_names_test <- sapply(subject_test, FUN=subjectify)
 subject_names_vector <- rbind(subject_names_train, subject_names_test)
 
 
-### creating a second dataset that has the means of each variable for each subject
+# creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
 tidy_data <- matrix(ncol=length(names(reduced_dataset)), nrow=length(unique(subject_names_vector)))
 rownames(tidy_data) <- unique(subject_names_vector); 
 colnames(tidy_data) <- names(reduced_dataset);
@@ -103,4 +105,5 @@ for(s in unique(subject_names_vector)){
   tidy_data[s,] = cm
 }
 
+# write it as csv file
 write.csv(tidy_data,file=paste(data_dir, "/TidyDataset.csv", sep=""))
