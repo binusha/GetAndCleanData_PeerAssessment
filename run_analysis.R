@@ -83,18 +83,25 @@ subject_test <- read.table(paste(path_unzipped, "/test/subject_test.txt", sep=""
 
 ## renaming IDs to more appropriate 
 # first create a function to add the word "Subject" to the number ID
-subjectify <- function(x){return(paste("Subject", as.character(x), sep=""))}
+concatinate <- function(x){
+  y <- paste("Subject", as.character(x), sep="")
+  return y
+}
 
 # sapply function to every element 
-subject_names_train <- sapply(subject_train, FUN=subjectify)
-subject_names_test <- sapply(subject_test, FUN=subjectify)
+subject_names_train <- sapply(subject_train, FUN=concatinate)
+# subject_names_train
+subject_names_test <- sapply(subject_test, FUN=concatinate)
+# subject_names_test
 
 # also merge the test and train subject names
 subject_names_vector <- rbind(subject_names_train, subject_names_test)
 
 
 # creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
-tidy_data <- matrix(ncol=length(names(reduced_dataset)), nrow=length(unique(subject_names_vector)))
+tidy_data <- matrix(ncol=length(names(reduced_dataset)), 
+                    nrow=length(unique(subject_names_vector)))
+
 rownames(tidy_data) <- unique(subject_names_vector); 
 colnames(tidy_data) <- names(reduced_dataset);
 
@@ -102,7 +109,7 @@ colnames(tidy_data) <- names(reduced_dataset);
 for(s in unique(subject_names_vector)){
   w <- which(subject_names_vector == s)
   cm <- colMeans(reduced_dataset[w,])
-  tidy_data[s,] = cm
+  tidy_data[s,] <- cm
 }
 
 # write it as csv file
